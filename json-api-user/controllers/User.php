@@ -195,7 +195,7 @@ class JSON_API_User_Controller
 		if ($user_id) {
 			$disallowed = array("wp_user_level", "wp_capabilities", "{$wpdb->prefix}user_level", "{$wpdb->prefix}capabilities");
 
-			if (is_array($custom_fields)) {
+			if ( !empty($custom_fields) && is_array($custom_fields)) {
                       
 				foreach ($custom_fields as $field => $val) {
 					if(!in_array($field, $disallowed)){
@@ -728,7 +728,7 @@ class JSON_API_User_Controller
 		} 
 		
 	  $result = array();
-   if(is_array($custom_fields)){
+   if( !empty($custom_fields) && is_array($custom_fields)){
        
 	   
 		foreach ($custom_fields as $field => $value) {
