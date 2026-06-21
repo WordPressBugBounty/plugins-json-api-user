@@ -1,5 +1,10 @@
 <?php
 
+// Prevent direct access to this file.
+if (!defined('ABSPATH')) {
+	exit;
+}
+
 /*
   Controller name: User
   Controller description: User Registration, Authentication, User Info, User Meta, FB Login, BuddyPress xProfile Fields methods
@@ -973,38 +978,76 @@ class JSON_API_User_Controller
 			$json_api->error("Please include 'content' var in your request.");
 		}
 
-		if (!isset($json_api->query->comment_status)) {
-			$json_api->error("Please include 'comment_status' var in your request. Possible values are comment_status=1 (approved) or comment_status=hold (not-approved)");
-		} else
-			$comment_status = $json_api->query->comment_status;
+		$post_id = absint($json_api->query->post_id);
 
-		if ($comment_status == 'hold')
-			$comment_status = 0;
+		if (!$post_id || !get_post($post_id)) {
+			$json_api->error("Invalid 'post_id'. The specified post does not exist.");
+		}
 
+		if (!comments_open($post_id)) {
+			$json_api->error("Comments are closed for this post.");
+		}
+
+		// Sanitize the comment content the same way WordPress core does for
+		// trusted contexts: strip any markup/attributes not allowed by the
+		// site's kses post rules. This prevents stored XSS via raw <script>,
+		// onerror=, javascript: URIs, etc. being persisted and later
+		// rendered unescaped on the front end.
+		$content = wp_unslash($json_api->query->content);
+		$content = wp_filter_post_kses($content);
+
+		if ('' === trim(wp_strip_all_tags($content))) {
+			$json_api->error("Comment 'content' is empty after sanitization.");
+		}
+
+		// Make sure WordPress treats this request as coming from the
+		// authenticated user (wp_new_comment() / its filters rely on the
+		// current user context, e.g. for comment_author_* fallback and the
+		// comments_flood filter).
+		wp_set_current_user($user_id);
 		$user_info = get_userdata($user_id);
 
-		$time = current_time('mysql');
-		$agent = $_SERVER['HTTP_USER_AGENT'];
-		$ip = $_SERVER['REMOTE_ADDR'];
+		// comment_approved must NOT be settable by arbitrary authenticated
+		// users — only users who actually have moderation rights are
+		// allowed to self-approve a comment. Everyone else is always
+		// moderated according to the site's normal comment workflow
+		// (handled internally by wp_new_comment()).
+		$requested_status = isset($json_api->query->comment_status)
+			? $json_api->query->comment_status
+			: 'hold';
 
-		$data = array(
-			'comment_post_ID' => $json_api->query->post_id,
-			'comment_author' => $user_info->user_login,
+		$commentdata = array(
+			'comment_post_ID'      => $post_id,
+			'comment_author'       => $user_info->user_login,
 			'comment_author_email' => $user_info->user_email,
-			'comment_author_url' => $user_info->user_url,
-			'comment_content' => $json_api->query->content,
-			'comment_type' => '',
-			'comment_parent' => 0,
-			'user_id' => $user_info->ID,
-			'comment_author_IP' => $ip,
-			'comment_agent' => $agent,
-			'comment_date' => $time,
-			'comment_approved' => $comment_status,
+			'comment_author_url'   => $user_info->user_url,
+			'comment_content'      => $content,
+			'comment_type'         => '',
+			'comment_parent'       => 0,
+			'user_id'              => $user_info->ID,
+			'comment_author_IP'    => $_SERVER['REMOTE_ADDR'],
+			'comment_agent'        => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
 		);
 
-		//print_r($data);
+		if ($requested_status === '1' && current_user_can('moderate_comments')) {
+			// Only explicitly privileged users may force-approve their own
+			// comment; wp_new_comment() still runs all standard filters
+			// (e.g. pre_comment_content, comment moderation, flood checks).
+			$commentdata['comment_approved'] = 1;
+		}
 
-		$comment_id = wp_insert_comment($data);
+		// wp_new_comment() — unlike wp_insert_comment() — runs the
+		// pre_comment_content filter (which applies wp_filter_kses /
+		// wp_kses_post depending on context), enforces comment moderation
+		// settings (akismet, blacklist, flood checks, manual approval
+		// requirements), and fires the standard comment hooks that other
+		// plugins expect to run. Calling wp_insert_comment() directly, as
+		// the previous implementation did, bypassed all of this.
+		$comment_id = wp_new_comment($commentdata, true);
+
+		if (is_wp_error($comment_id)) {
+			$json_api->error($comment_id->get_error_message());
+		}
 
 		return array(
 			"comment_id" => $comment_id

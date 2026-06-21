@@ -3,10 +3,10 @@
 Donate link: http://www.parorrey.com/solutions/json-api-user-plus/
 Tags: json api, RESTful user registration, authentication, RESTful Facebook Login, RESTful User Meta and BuddyPress xProfile
 Contributors: parorrey
-Stable tag: 4.1.0
+Stable tag: 4.1.2
 Requires at least: 3.0.1
-Tested up to: 6.8
-Requires PHP: 5.3
+Tested up to: 7.0
+Requires PHP: 7.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -223,14 +223,22 @@ http://localhost/api/user/get_userinfo/?user_id=1
 
 = Method: post_comment =
 
-It needs 'cookie', 'post_id', 'content', 'comment_status' vars.
+It needs 'cookie', 'post_id', 'content' vars. 'comment_status' is optional.
 
 http://localhost/api/user/post_comment/?cookie=COOKIE-HERE&post_id=ID&content=Comment contents here&comment_status=1
+
+Comment content is sanitized with wp_filter_post_kses() before being saved, and the comment is inserted via wp_new_comment() so normal WordPress comment moderation, flood checks, and spam filtering (e.g. Akismet) still apply. 'comment_status=1' only auto-approves the comment if the authenticated user has the 'moderate_comments' capability (e.g. Editor/Administrator); otherwise the comment falls back to the site's default moderation rules. 'comment_status=hold' (or omitting the param) leaves the comment pending the usual moderation workflow.
 
 For additional endpoints, pro version JSON API User Plus plugin details check here https://www.parorrey.com/solutions/json-api-user-plus/
 
 
 == Changelog ==
+
+= 4.1.2 =
+* Updated for WP, php version
+
+= 4.1.1 =
+* Security fix: fixed a security vulnerability.
 
 = 4.1.0 =
 * For new version of WordPress 6.8
