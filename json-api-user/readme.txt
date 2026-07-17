@@ -1,9 +1,9 @@
 === JSON API User ===
 
-Donate link: http://www.parorrey.com/solutions/json-api-user-plus/
+Donate link: https://www.parorrey.com/donate/
 Tags: json api, RESTful user registration, authentication, RESTful Facebook Login, RESTful User Meta and BuddyPress xProfile
 Contributors: parorrey
-Stable tag: 4.1.2
+Stable tag: 4.1.3
 Requires at least: 3.0.1
 Tested up to: 7.0
 Requires PHP: 7.4
@@ -13,6 +13,14 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Extends the JSON API Plugin to allow RESTful user registration, authentication & many other User Meta, BP functions. A Pro version is also available.
 
 ==Description==
+
+= Important: use RESTful JSON API for new integrations =
+
+JSON API User is retained for existing sites that still depend on the original JSON API plugin and its cookie-authentication workflow. For a new mobile app, headless site, external service, or AI-assisted integration, install <a href="https://wordpress.org/plugins/restful-json-api/">RESTful JSON API</a> instead.
+
+RESTful JSON API provides plugin-issued JWT bearer authentication, requires HTTPS by default for requests that handle passwords or tokens, and includes a broader set of endpoints organized into Core, Posts, User, Respond, and Widgets controllers. Its User controller covers signup, JWT login, token validation, profiles, avatars, password-reset requests, safe user meta, and authenticated comments. The Posts controller also provides post, custom post type, taxonomy, term, media, attachment, and comment discovery endpoints.
+
+Existing JSON API User integrations can continue using this plugin. Because the authentication format and endpoint paths differ, test your client migration before deactivating the legacy JSON API stack.
 
 JSON API User extends the JSON API Plugin with a new Controller to allow RESTful user registration, authentication, password reset, RESTful Facebook Login, RESTful User Meta and BuddyPress xProfile get and update methods. This plugin is for WordPress/Mobile app developers who want to use WordPress as mobile app data backend. 
 
@@ -233,6 +241,11 @@ For additional endpoints, pro version JSON API User Plus plugin details check he
 
 
 == Changelog ==
+
+= 4.1.3 =
+* Added a migration notice recommending the newer RESTful JSON API plugin for new projects.
+* Documented its JWT bearer authentication, HTTPS-by-default protection, and broader controller-based endpoint set.
+* Added secure WordPress.org and donation links.
 
 = 4.1.2 =
 * Updated for WP, php version
