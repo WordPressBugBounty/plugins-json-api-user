@@ -13,7 +13,13 @@ if (!defined('ABSPATH')) {
 
   Description: Extends the JSON API for RESTful user registration, authentication, password reset, Facebook Login, user meta and BuddyPress Profile related functions. A Pro version is also available.
 
-  Version: 4.1.3
+  Version: 4.1.4
+
+  Requires at least: 3.0.1
+
+  Requires PHP: 7.4
+
+  Tested up to: 7.1
 
   Author: Ali Qureshi
 
@@ -23,7 +29,7 @@ if (!defined('ABSPATH')) {
 
  */
 
-define('JAU_VERSION', '4.1.3');
+define('JAU_VERSION', '4.1.4');
 
 include_once(ABSPATH . 'wp-admin/includes/plugin.php');
 

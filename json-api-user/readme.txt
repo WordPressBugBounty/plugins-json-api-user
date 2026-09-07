@@ -3,9 +3,9 @@
 Donate link: https://www.parorrey.com/donate/
 Tags: json api, RESTful user registration, authentication, RESTful Facebook Login, RESTful User Meta and BuddyPress xProfile
 Contributors: parorrey
-Stable tag: 4.1.3
+Stable tag: 4.1.4
 Requires at least: 3.0.1
-Tested up to: 7.0
+Tested up to: 7.1
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -241,6 +241,10 @@ For additional endpoints, pro version JSON API User Plus plugin details check he
 
 
 == Changelog ==
+
+= 4.1.4 =
+* Tested and confirmed compatible with WordPress 7.1.
+* Confirmed the secure Parorrey donation link.
 
 = 4.1.3 =
 * Added a migration notice recommending the newer RESTful JSON API plugin for new projects.
